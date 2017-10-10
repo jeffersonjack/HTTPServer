@@ -6,7 +6,9 @@ SRCDIR = src
 OBJDIR = obj
 SRCS = src/main.c \
        src/getlisteningsocket.c \
-       src/iptostr.c
+       src/iptostr.c \
+       src/handleclient.c \
+       src/acceptconnections.c
 OBJS = $(SRCS:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
 
 all: $(BIN)
