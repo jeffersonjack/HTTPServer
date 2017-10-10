@@ -1,11 +1,12 @@
 CC = clang
-CFLAGS = -Wall -Werror -std=c99
+CFLAGS = -Wall -Werror -std=gnu99
 BIN = server
 LIBS =
 SRCDIR = src
 OBJDIR = obj
 SRCS = src/main.c \
-       src/getlisteningsocket.c
+       src/getlisteningsocket.c \
+       src/iptostr.c
 OBJS = $(SRCS:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
 
 all: $(BIN)

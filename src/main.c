@@ -5,8 +5,10 @@
 
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 
 #include "server.h"
+#include "util.h"
 
 int main(int argc, char **argv)
 {
@@ -20,7 +22,7 @@ int main(int argc, char **argv)
   char buffer[buffersize];
   struct sockaddr_in6 *addr = malloc(sizeof(struct sockaddr_in6));
   socklen_t addrlen = sizeof(*addr);
-  
+  //  char clientaddr[INET6_ADDRSTRLEN];
 
   /* make sure the server was started correctly */
   if (argc != 2) {
@@ -44,15 +46,16 @@ int main(int argc, char **argv)
   
   printf("Accepting connections on port %d.\n", portno);
   while ((client = accept(sock, (struct sockaddr*) addr, &addrlen)) >= 0) {
-  
-	printf("Got a connection!\n");
+    //	clientaddr = iptostr(addr);
+    
+	printf("Got a connection from %s.\n", iptostr(addr));
 
 	while ((numbytes = read(client, buffer, buffersize-1)) > 0) {
-	  printf("Got message: %s", buffer);
+	  printf("Got message from %s: %s", iptostr(addr), buffer);
 	  /* fill buffer with null bytes */
 	  bzero(buffer, buffersize);
 	}
-	printf("Client disconnected.\n");
+	printf("Client %s  disconnected.\n", iptostr(addr));
 	close(client);
   }
   
