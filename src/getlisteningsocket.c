@@ -20,20 +20,20 @@ int getlisteningsocket(int port)
   /* ask for a socket and check we received one */
   sock = socket(PF_INET6, SOCK_STREAM, 0);
   if (sock < 0) {
-	perror("socket");
-	exit(-1);
+    perror("socket");
+    exit(-1);
   }
 
   /* bind the address to the socket and check for success */
   if (bind(sock, (struct sockaddr*) address, sizeof(*address))) {
-	perror("bind");
-	exit(-1);
+    perror("bind");
+    exit(-1);
   }
 
   /* listen for socket connections. backlog of 5, just because */
   if (listen(sock, 5)) {
-	perror("listen");
-	exit(-1);
+    perror("listen");
+    exit(-1);
   }
 
   /* return the socket file descriptor to caller */
