@@ -1,7 +1,7 @@
 CC = clang
-CFLAGS = -Wall -Werror -std=gnu99
+CFLAGS = -g -Wall -Werror -std=gnu99
 BIN = server
-LIBS =
+LIBS = -lpthread
 SRCDIR = src
 OBJDIR = obj
 SRCS = src/main.c \

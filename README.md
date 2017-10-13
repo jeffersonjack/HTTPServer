@@ -9,7 +9,7 @@ The project can be compiled by executing
 Clang is used for compilation.
 
 ## Current Status
-Currently, there is a very, very simple server that is run by executing the
+Currently, there is a very simple server that is run by executing the
 command
 
 `$ ./server port`
@@ -25,3 +25,6 @@ or netcat:
 `$ nc host port`
 
 Messages can be typed, and they will be echoed by the server.
+
+The server is multithreaded, and can therefore handle multiple simultaneous
+connections.
