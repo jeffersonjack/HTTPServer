@@ -28,3 +28,7 @@ Messages can be typed, and they will be echoed by the server.
 
 The server is multithreaded, and can therefore handle multiple simultaneous
 connections.
+
+The server will attempt to parse an incomming message as an HTTP request, and if
+successful, it will echo some of the basic information from the request. It then
+responds with a simple HTML page that reports a 'success' message.

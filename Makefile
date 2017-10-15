@@ -8,13 +8,14 @@ SRCS = src/main.c \
        src/getlisteningsocket.c \
        src/iptostr.c \
        src/handleclient.c \
-       src/acceptconnections.c
+       src/acceptconnections.c \
+       src/parserequest.c
 OBJS = $(SRCS:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
 
 all: $(BIN)
 
 $(BIN): $(OBJS)
-	$(CC) -o $(BIN) $(CFLAGS) $+ $(LIBS)
+	$(CC) -o $(BIN) $(CFLAGS) $(LIBS) $+
 
 $(OBJS): $(OBJDIR)/%.o : $(SRCDIR)/%.c
 	$(CC) $(CFLAGS) -c -o $@ $<
