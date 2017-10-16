@@ -16,19 +16,7 @@ command
 
 where 'port' is an integer between 1024 and 65535.
 
-The server can be connected to using, for example telnet:
-
-`$ telnet host port`
-
-or netcat:
-
-`$ nc host port`
-
-Messages can be typed, and they will be echoed by the server.
-
-The server is multithreaded, and can therefore handle multiple simultaneous
-connections.
-
 The server will attempt to parse an incomming message as an HTTP request, and if
 successful, it will echo some of the basic information from the request. It then
-responds with a simple HTML page that reports a 'success' message.
+looks for the requested file and, if found, generates an appropriate HTTP
+response and sends this, along with the file, back to the client.

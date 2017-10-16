@@ -5,13 +5,14 @@ LIBS = -lpthread
 SRCDIR = src
 OBJDIR = obj
 SRCS = src/main.c \
-       src/getlisteningsocket.c \
-       src/iptostr.c \
-       src/handleclient.c \
-       src/acceptconnections.c \
-       src/parserequest.c \
-       src/filesize.c \
-       src/makefilepath.c
+	   src/getlisteningsocket.c \
+	   src/iptostr.c \
+	   src/handleclient.c \
+	   src/acceptconnections.c \
+	   src/parserequest.c \
+	   src/filesize.c \
+	   src/makefilepath.c \
+	   src/resptostr.c
 OBJS = $(SRCS:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
 
 all: $(BIN)

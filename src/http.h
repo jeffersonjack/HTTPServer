@@ -1,6 +1,8 @@
 #ifndef HTML_H
 #define HTML_H
 
+#include <time.h>
+
 #define MAXURILEN 64
 
 /* This will probably need extending */
@@ -15,14 +17,16 @@ struct request {
 
 /* HTTP response. */
 struct response {
-  char *version;
+  char version[9];
   char *status;
   /* Header fields */
-  struct {
+  /*struct {
     char *type;
     char *charset;
-  } contenttype ;
-  char *date;
+  } contenttype;
+  struct tm date;
+  */
+  char *body;
 };
 
 /* Parse a message and, if it is a HTML request, put the data into 'req' and
@@ -30,5 +34,9 @@ struct response {
    it (hopefully) isn't a properly formatted HTML request and the function will
    return 0. */
 int parserequest(struct request* req, char *data, int size);
+
+/* Convert a response structure to a string that is a valid HTTP response
+   message. */
+int resptostr(struct response *resp, char **buffer);
 
 #endif /* HTML_H */
