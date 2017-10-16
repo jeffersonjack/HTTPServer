@@ -4,3 +4,7 @@ server
 # Object files
 *.o
 obj/
+
+# Directories
+test/
+www/

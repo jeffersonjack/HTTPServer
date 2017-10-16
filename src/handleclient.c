@@ -1,10 +1,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <strings.h>
+#include <string.h>
 
 #include <arpa/inet.h>
 
+#include "file.h"
 #include "http.h"
 #include "util.h"
 
@@ -16,6 +17,11 @@ void handleclient(int clientfd)
   char buffer[buffersize];
   struct request *req = malloc(sizeof(struct request));
 
+  int fsize;
+  char *filecontents;
+  FILE *f;
+  char *filepath = NULL;
+
   //printf("Got a connection from %s.\n", iptostr(addr));
   printf("Got a connection.\n");
 
@@ -23,8 +29,6 @@ void handleclient(int clientfd)
   if ((numbytes = read(clientfd, buffer, buffersize-1)) > 0) {
     /* echo message */
     printf("Got message:\n%s\n", buffer);
-    //    /* fill buffer with null bytes */
-    //    bzero(buffer, buffersize);
 
     if (parserequest(req, buffer, numbytes)) {
       printf("\nHTTP REQUEST\n------------\n");
@@ -39,6 +43,26 @@ void handleclient(int clientfd)
     }
     else
       printf("Not a valid HTTP request.\n");
+
+
+    /* file stuff */
+    if (req) {
+      makefilepath(req->uri, &filepath);
+      printf("Looking for file \"%s\"...\n", filepath);
+      fsize = filesize(filepath);
+      if (fsize >= 0) {
+        filecontents = malloc((fsize * sizeof(char)) + 1);
+        f = fopen(filepath, "r");
+        numbytes = fread(filecontents, sizeof(char), fsize, f);
+        /* null-terminate the string */
+        filecontents[fsize] = '\0';
+        printf("Found:\n---------------------\n%s\n---------------------\n", filecontents);
+        fclose(f);
+      }
+      else
+        printf("File not found.\n");
+    }
+    
 
     /* send HTTP response back */
     //    numbytes = write(clientfd, "HTTP/1.1 501 Not Implemented\r\n\r\n", 32);

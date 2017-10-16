@@ -9,7 +9,9 @@ SRCS = src/main.c \
        src/iptostr.c \
        src/handleclient.c \
        src/acceptconnections.c \
-       src/parserequest.c
+       src/parserequest.c \
+       src/filesize.c \
+       src/makefilepath.c
 OBJS = $(SRCS:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
 
 all: $(BIN)
