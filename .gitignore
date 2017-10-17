@@ -7,3 +7,6 @@ obj/
 
 # Directories
 test/
+
+# Other
+rfc2616.txt
