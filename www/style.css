@@ -1,0 +1,14 @@
+#header {
+    margin-left: 200px;
+    margin-right: 200px;
+}
+
+#container {
+    width: 800px;
+    margin: auto;
+}
+
+p {
+    font-family: Helvetica;
+    font-size: 14px;
+}
