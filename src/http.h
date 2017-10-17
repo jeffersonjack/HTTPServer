@@ -27,7 +27,6 @@ struct response {
   } contenttype;
   struct tm date;
   */
-  char *body;
 };
 
 /* Parse a message and, if it is a HTML request, put the data into 'req' and

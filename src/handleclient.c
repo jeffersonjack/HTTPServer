@@ -17,11 +17,13 @@ void handleclient(int clientfd)
   struct request *req = malloc(sizeof(struct request));
   memset(req->version, '\0', 9);
 
-  int fsize;
+  int fsize = 0;
   char *filecontents = NULL;
   FILE *f;
   char *filepath = NULL;
   struct response *resp = malloc(sizeof(struct response));
+  memset(resp->version, '\0', 9);
+
   char *responsestr = NULL;
 
   /* wait for a message from the client */
@@ -46,7 +48,7 @@ void handleclient(int clientfd)
 
 
 
-    strncpy(resp->version, "HTTP/1.1\0", 9);
+    strncpy(resp->version, "HTTP/1.1", 8);
 
     /* file stuff */
     if (req) {
@@ -54,23 +56,23 @@ void handleclient(int clientfd)
       printf("Looking for file \"%s\"...\n", filepath);
       fsize = filesize(filepath);
       if (fsize >= 0) {
-        filecontents = malloc(fsize + 1);
+        filecontents = malloc(fsize);
         f = fopen(filepath, "rb");
         printf("Size of file is %d.\n", fsize);
-        while (!feof(f)) {
-          numbytes = fread(filecontents, sizeof(char), fsize, f);
-        }
+        numbytes = fread(filecontents, sizeof(char), fsize, f);
         /* null-terminate the string */
-        filecontents[fsize] = '\0';
+        //        filecontents[fsize] = '\0';
         fclose(f);
         resp->status = malloc(7 * sizeof(char));
         memset(resp->status, '\0', 7);
         strncpy(resp->status, "200 OK", 6);
+        /*
         resp->body = malloc(fsize * sizeof(int) + 1);
         if (resp->body) {
           memset(resp->body, '\0', fsize * sizeof(int) + 1);
           memcpy(resp->body, filecontents, fsize);
         }
+        */
       }
       else {
         //printf("File not found.\n");
@@ -82,17 +84,21 @@ void handleclient(int clientfd)
     printf("HTTP Response\n-------------------\n");
     printf("Version: %s\n", resp->version);
     printf("Status: %s\n", resp->status);
-    if (resp->body)
-      printf("Body: \n%s\n", resp->body);
+    //if (resp->body)
+    //printf("Body: \n%s\n", resp->body);
 
     numbytes = resptostr(resp, &responsestr);
     if (numbytes < 0)
       fprintf(stderr, "Error: response couldn't be converted to a string.\n");
     else {
       numbytes = write(clientfd, responsestr, numbytes);
-      printf("Sent %d bytes back.\n", numbytes);
+      printf("Sent %d bytes back in header.\n", numbytes);
     }
 
+    printf("fsize = %d\n", fsize);
+    numbytes = write(clientfd, filecontents, fsize);
+    printf("Sent %d bytes back in body.\n", numbytes);
+    
     close(clientfd);
   }
 
@@ -100,10 +106,10 @@ void handleclient(int clientfd)
   if (filepath)
     free(filepath);
   free(resp->status);
-  if (resp->body) {
+  /*if (resp->body) {
     free(resp->body);
     resp->body = NULL;
-  }
+    }*/
   free(resp);
   resp = NULL;
   free(req);
