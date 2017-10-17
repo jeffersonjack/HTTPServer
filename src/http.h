@@ -3,7 +3,8 @@
 
 #include <time.h>
 
-#define MAXURILEN 64
+#define MAXREQSIZE 1024
+#define MAXURISIZE 64
 
 /* This will probably need extending */
 enum httpmethod {GET};
@@ -11,7 +12,7 @@ enum httpmethod {GET};
 /* HTTP request. */
 struct request {
   enum httpmethod method;
-  char uri[MAXURILEN];
+  char uri[MAXURISIZE];
   char version[9];
 };
 

@@ -22,7 +22,7 @@ int parserequest(struct request *req, char *data, int size)
 
   /* next comes the URI */
   token = strtok(NULL, " \0");
-  strncpy(req->uri, token, MAXURILEN-1);
+  strncpy(req->uri, token, MAXURISIZE-1);
 
   /* then the HTTP version */
   token = strtok(NULL, " \0");
