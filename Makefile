@@ -21,10 +21,11 @@ $(BIN): $(OBJS)
 	$(CC) -o $(BIN) $(CFLAGS) $(LIBS) $+
 
 $(OBJS): $(OBJDIR)/%.o : $(SRCDIR)/%.c
+	@mkdir -p obj
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 run:
 	./$(BIN) 1030
 
 clean:
-	rm -rf $(BIN) $(OBJDIR)/*.o
+	rm -rf $(BIN) $(OBJDIR)
