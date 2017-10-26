@@ -24,6 +24,11 @@ int getlisteningsocket(int port)
     exit(-1);
   }
 
+  /* allow the same address to be reused when reconnecting */
+  const int one = 1;
+  if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one)))
+    perror ("setsocket");
+
   /* bind the address to the socket and check for success */
   if (bind(sock, (struct sockaddr*) address, sizeof(*address))) {
     perror("bind");
