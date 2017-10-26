@@ -22,7 +22,7 @@ void handleclient(int clientfd)
   FILE *f;
   char *filepath = NULL;
   struct response *resp = malloc(sizeof(struct response));
-  memset(resp->version, '\0', 9);
+  memset(resp->version, '\0', VERSIONLENGTH);
 
   char *responsestr = NULL;
 
@@ -47,80 +47,82 @@ void handleclient(int clientfd)
       printf("Not a valid HTTP request.\n");
 
 
+    /* start making response header */
+    strncpy(resp->version, "HTTP/1.1", VERSIONLENGTH-1);
 
-    strncpy(resp->version, "HTTP/1.1", 8);
-
-    /* file stuff */
+    /* if we have a valid request, follow the URI */
     if (req) {
       makefilepath(req->uri, &filepath);
       printf("Looking for file \"%s\"...\n", filepath);
-      fsize = filesize(filepath);
-      if (fsize >= 0) {
+
+      /* check if the file is a directory */
+      if (directory(filepath) > 0) {
+        /* generate directory listing */
+        fsize = 73 + strlen(req->uri);
         filecontents = malloc(fsize);
-        f = fopen(filepath, "rb");
-        printf("Size of file is %d.\n", fsize);
-        numbytes = fread(filecontents, sizeof(char), fsize, f);
-        /* null-terminate the string */
-        //        filecontents[fsize] = '\0';
-        fclose(f);
-        resp->status = malloc(7 * sizeof(char));
-        memset(resp->status, '\0', 7);
-        strncpy(resp->status, "200 OK", 6);
-        /*
-        resp->body = malloc(fsize * sizeof(int) + 1);
-        if (resp->body) {
-          memset(resp->body, '\0', fsize * sizeof(int) + 1);
-          memcpy(resp->body, filecontents, fsize);
-        }
-        */
+        memset(filecontents, '\0', fsize);
+        strncpy(filecontents, "<html><head><title>Index</title></head><body><h1>Index of ", 58);
+        strncat(filecontents, req->uri, strlen(req->uri));
+        strncat(filecontents, "</h1><hr><ul>\n", 14);
+        if ((fsize = getdirlist(filepath, &filecontents, fsize)) == 0)
+          fprintf(stderr, "getdirlist: failed to get directory listing\n");
       }
       else {
-        //printf("File not found.\n");
-        resp->status = malloc(14 * sizeof(char));
-        strncpy(resp->status, "404 Not Found", 13);
+        /* not a directory */
+        fsize = filesize(filepath);
+        if (fsize >= 0) {
+          /* get the file */
+          filecontents = malloc(fsize);
+          f = fopen(filepath, "rb");
+          printf("Size of file is %d.\n", fsize);
+          numbytes = fread(filecontents, sizeof(char), fsize, f);
+          fclose(f);
+        }
       }
+      /* success status */
+      resp->status = malloc(7 * sizeof(char));
+      memset(resp->status, '\0', 7);
+      strncpy(resp->status, "200 OK", 6);
+    }
+    else {
+      /* couldn't find the file */
+      resp->status = malloc(14 * sizeof(char));
+      strncpy(resp->status, "404 Not Found", 13);
     }
 
     printf("HTTP Response\n-------------------\n");
     printf("Version: %s\n", resp->version);
     printf("Status: %s\n", resp->status);
-    //if (resp->body)
-    //printf("Body: \n%s\n", resp->body);
 
-    numbytes = resptostr(resp, &responsestr);
-    if (numbytes < 0)
+    /* generate response header string... */
+    if ((numbytes = resptostr(resp, &responsestr)) < 0)
       fprintf(stderr, "Error: response couldn't be converted to a string.\n");
     else {
+      /* ...and send it */
       numbytes = write(clientfd, responsestr, numbytes);
       printf("Sent %d bytes back in header.\n", numbytes);
     }
 
-    printf("fsize = %d\n", fsize);
+    /* send the body */
     numbytes = write(clientfd, filecontents, fsize);
     printf("Sent %d bytes back in body.\n", numbytes);
-    
-    close(clientfd);
+
   }
 
   /* Clean up */
   if (filepath)
     free(filepath);
   free(resp->status);
-  /*if (resp->body) {
-    free(resp->body);
-    resp->body = NULL;
-    }*/
   free(resp);
   resp = NULL;
   free(req);
   req = NULL;
-
   if (responsestr)
     free(responsestr);
-
   if (filecontents)
     free(filecontents);
 
-  printf("Client disconnected.\n");
+  /* done: disconnect the client */
   close(clientfd);
+  printf("Client disconnected.\n");
 }

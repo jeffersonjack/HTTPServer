@@ -3,22 +3,22 @@
 
 #include <time.h>
 
-#define MAXREQSIZE 1024
-#define MAXURISIZE 64
+#define MAXREQSIZE    1024
+#define MAXURISIZE    64
+#define VERSIONLENGTH 9
 
-/* This will probably need extending */
 enum httpmethod {GET};
 
 /* HTTP request. */
 struct request {
   enum httpmethod method;
   char uri[MAXURISIZE];
-  char version[9];
+  char version[VERSIONLENGTH];
 };
 
 /* HTTP response. */
 struct response {
-  char version[9];
+  char version[VERSIONLENGTH];
   char *status;
   /* Header fields */
   /*struct {

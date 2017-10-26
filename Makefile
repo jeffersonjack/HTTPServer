@@ -11,6 +11,8 @@ SRCS = src/main.c \
 	   src/acceptconnections.c \
 	   src/parserequest.c \
 	   src/filesize.c \
+	   src/directory.c \
+	   src/getdirlist.c \
 	   src/makefilepath.c \
 	   src/resptostr.c
 OBJS = $(SRCS:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
