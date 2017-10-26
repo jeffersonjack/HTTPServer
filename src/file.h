@@ -2,7 +2,8 @@
 #define FILE_H
 
 #define MAXFILENAME 255   /* 255 is the max file name length on EXT FS */
-#define BASEDIR "/home/jack/Documents/Uni/Year3/networks/Assignments/HTTPServer/www"
+#define DIR_OK      1
+#define DIR_NOSLASH 2
 
 /* get the size of the file (in bytes) of the file at the specified (relative)
    path. -1 will be returned if the file does not exist. */

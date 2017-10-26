@@ -22,6 +22,7 @@ void handleclient(int clientfd)
   FILE *f;
   char *filepath = NULL;
   struct response *resp = malloc(sizeof(struct response));
+  memset(resp, 0, sizeof(struct response));
   memset(resp->version, '\0', VERSIONLENGTH);
 
   char *responsestr = NULL;
@@ -56,43 +57,62 @@ void handleclient(int clientfd)
       printf("Looking for file \"%s\"...\n", filepath);
 
       /* check if the file is a directory */
-      if (directory(filepath) > 0) {
-        /* generate directory listing */
-        fsize = 73 + strlen(req->uri);
-        filecontents = malloc(fsize);
-        memset(filecontents, '\0', fsize);
-        strncpy(filecontents, "<html><head><title>Index</title></head><body><h1>Index of ", 58);
-        strncat(filecontents, req->uri, strlen(req->uri));
-        strncat(filecontents, "</h1><hr><ul>\n", 14);
-        if ((fsize = getdirlist(filepath, &filecontents, fsize)) == 0)
-          fprintf(stderr, "getdirlist: failed to get directory listing\n");
-      }
-      else {
-        /* not a directory */
-        fsize = filesize(filepath);
-        if (fsize >= 0) {
-          /* get the file */
+      switch (directory(filepath)) {
+        case DIR_OK:
+          /* generate directory listing */
+          fsize = 73 + strlen(req->uri);
           filecontents = malloc(fsize);
-          f = fopen(filepath, "rb");
-          printf("Size of file is %d.\n", fsize);
-          numbytes = fread(filecontents, sizeof(char), fsize, f);
-          fclose(f);
-        }
+          memset(filecontents, '\0', fsize);
+          strncpy(filecontents, "<html><head><title>Index</title></head><body><h1>Index of ", 58);
+          strncat(filecontents, req->uri, strlen(req->uri));
+          strncat(filecontents, "</h1><hr><ul>\n", 14);
+          if ((fsize = getdirlist(filepath, &filecontents, fsize)) == 0)
+            fprintf(stderr, "getdirlist: failed to get directory listing\n");
+          /* success status */
+          resp->status = malloc(7);
+          memset(resp->status, '\0', 7);
+          strncpy(resp->status, "200 OK", 6);
+          break;
+        case DIR_NOSLASH:
+          resp->status = malloc(14);
+          memset(resp->status, '\0', 14);
+          strncpy(resp->status, "303 See Other", 13);
+          resp_addheader(resp, "Location", strcat((req->uri)+1, "/"));
+          break;
+        case 0:
+          /* not a directory */
+          fsize = filesize(filepath);
+          if (fsize >= 0) {
+            /* get the file */
+            filecontents = malloc(fsize);
+            f = fopen(filepath, "rb");
+            printf("Size of file is %d.\n", fsize);
+            numbytes = fread(filecontents, sizeof(char), fsize, f);
+            fclose(f);
+            /* success status */
+            resp->status = malloc(7 * sizeof(char));
+            memset(resp->status, '\0', 7);
+            strncpy(resp->status, "200 OK", 6);
+          }
+          break;
+        default:
+          /* couldn't find the file */
+          resp->status = malloc(14);
+          memset(resp->status, '\0', 14);
+          strncpy(resp->status, "404 Not Found", 13);
+          break;
       }
-      /* success status */
-      resp->status = malloc(7 * sizeof(char));
-      memset(resp->status, '\0', 7);
-      strncpy(resp->status, "200 OK", 6);
-    }
-    else {
-      /* couldn't find the file */
-      resp->status = malloc(14 * sizeof(char));
-      strncpy(resp->status, "404 Not Found", 13);
     }
 
     printf("HTTP Response\n-------------------\n");
     printf("Version: %s\n", resp->version);
     printf("Status: %s\n", resp->status);
+
+    struct httpheader *head = resp->header;
+    while (head) {
+      printf("%s: %s\n", head->field, head->value);
+      head = head->next;
+    }
 
     /* generate response header string... */
     if ((numbytes = resptostr(resp, &responsestr)) < 0)
@@ -101,6 +121,7 @@ void handleclient(int clientfd)
       /* ...and send it */
       numbytes = write(clientfd, responsestr, numbytes);
       printf("Sent %d bytes back in header.\n", numbytes);
+      printf("------\n%s\n------\n", responsestr);
     }
 
     /* send the body */
@@ -113,6 +134,7 @@ void handleclient(int clientfd)
   if (filepath)
     free(filepath);
   free(resp->status);
+  resp_freeheaders(resp);
   free(resp);
   resp = NULL;
   free(req);

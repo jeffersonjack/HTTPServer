@@ -9,8 +9,7 @@ The project can be compiled by executing
 Clang is used for compilation.
 
 ## Current Status
-Currently, there is a very simple server that is run by executing the
-command
+Currently, there is a web server that is run by executing the command
 
 `$ ./server port`
 
@@ -20,3 +19,5 @@ The server will attempt to parse an incomming message as an HTTP request, and if
 successful, it will echo some of the basic information from the request. It then
 looks for the requested file and, if found, generates an appropriate HTTP
 response and sends this, along with the file, back to the client.
+
+If a directory is specified, a listing is generated and sent to the client.
