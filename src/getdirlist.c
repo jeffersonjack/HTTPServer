@@ -49,6 +49,8 @@ int getdirlist(const char *path, char **buffer, int bsize)
           strncat(*buffer, line, strlen(line));
         }
       }
+      free(line);
+      closedir(dp);
     }
   }
 

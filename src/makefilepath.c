@@ -18,4 +18,5 @@ void makefilepath(const char *file, char **fullpath)
     strncpy(*fullpath, pwd, strlen(pwd));
     strncat(*fullpath, file, strlen(file));
   }
+  free(pwd);
 }
