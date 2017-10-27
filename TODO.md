@@ -7,3 +7,4 @@
       request can be. Change this.
     * Handle other methods (e.g. HEAD, TRACE)
     * Compression (gzip)
+    * Check response against request headers, e.g. 'Accept' vs. 'Content-Type'
