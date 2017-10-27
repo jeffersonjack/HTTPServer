@@ -27,8 +27,10 @@ void acceptconnections(int sockfd)
       pthread_t clientthread;
 
       /* do the work in a separate thread, so we can accept new clients here */
-      if(pthread_create(&clientthread, NULL, spawnclienthandler, (void *) client) != 0)
+      if (pthread_create(&clientthread, NULL, spawnclienthandler, (void *) client) != 0)
         perror("pthread_create");
+      if (pthread_detach(clientthread) != 0)
+        fprintf(stderr, "Error: pthread_detach failed\n");
     }
     else {
       perror("accept");
@@ -47,8 +49,6 @@ void *spawnclienthandler(void *data)
 
   /* clean up and exit */
   shutdown(client->clientfd, SHUT_RDWR);
-  printf("freeing data...\n");
   free(data);
-  printf("done\n");
   pthread_exit(NULL);
 }
