@@ -21,11 +21,11 @@ int parserequest(struct request *req, char *data, int size)
     return 0;    /* fail */
 
   /* next comes the URI */
-  token = strtok(NULL, " \0");
+  token = strtok(NULL, " ");
   strncpy(req->uri, token, MAXURISIZE-1);
 
   /* then the HTTP version */
-  token = strtok(NULL, " \0");
+  token = strtok(NULL, " ");
   strncpy(req->version, token, 8);
 
   /* success */
