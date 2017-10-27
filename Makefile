@@ -16,7 +16,12 @@ SRCS = src/main.c \
 	   src/makefilepath.c \
 	   src/resptostr.c \
 	   src/headers.c \
-	   src/contenttype.c
+	   src/contenttype.c \
+	   src/printhttp.c \
+	   src/httptime.c \
+	   src/makeresponse_dir.c \
+	   src/makeresponse_file.c \
+       src/makeresponse_404.c
 OBJS = $(SRCS:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
 
 all: $(BIN)
