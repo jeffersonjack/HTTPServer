@@ -25,4 +25,8 @@ void makefilepath(const char *file, char **buffer);
    failure, return 0. */
 int getdirlist(const char *path, char **buffer, int bsize);
 
+/* gets the type of the file, in the HTTP 'Content-Type' format. returns -1 on
+   failure, 0 otherwise. */
+int contenttype(const char *path, char *buffer, int bsize);
+
 #endif /* FILE_H */

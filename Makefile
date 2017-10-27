@@ -15,7 +15,8 @@ SRCS = src/main.c \
 	   src/getdirlist.c \
 	   src/makefilepath.c \
 	   src/resptostr.c \
-	   src/headers.c
+	   src/headers.c \
+	   src/contenttype.c
 OBJS = $(SRCS:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
 
 all: $(BIN)

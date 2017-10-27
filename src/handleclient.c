@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
-
 #include <arpa/inet.h>
 
 #include "file.h"
@@ -29,9 +28,6 @@ void handleclient(int clientfd)
 
   /* wait for a message from the client */
   if ((numbytes = read(clientfd, buffer, MAXREQSIZE-1)) > 0) {
-    /* echo message */
-    printf("Got message:\n%s\n", buffer);
-
     /* try to parse an HTTP request */
     if (parserequest(req, buffer, numbytes)) {
       printf("\nHTTP REQUEST\n------------\n");
@@ -54,7 +50,6 @@ void handleclient(int clientfd)
     /* if we have a valid request, follow the URI */
     if (req) {
       makefilepath(req->uri, &filepath);
-      printf("Looking for file \"%s\"...\n", filepath);
 
       /* check if the file is a directory */
       switch (directory(filepath)) {
@@ -74,25 +69,30 @@ void handleclient(int clientfd)
           strncpy(resp->status, "200 OK", 6);
           break;
         case DIR_NOSLASH:
+          /* redirect to correct directory page */
           resp->status = malloc(14);
           memset(resp->status, '\0', 14);
           strncpy(resp->status, "303 See Other", 13);
-          resp_addheader(resp, "Location", strcat((req->uri)+1, "/"));
+          resp_addheader(resp, "Location", strcat(req->uri, "/"));
           break;
         case 0:
-          /* not a directory */
+          /* not a directory - a file */
           fsize = filesize(filepath);
           if (fsize >= 0) {
             /* get the file */
             filecontents = malloc(fsize);
             f = fopen(filepath, "rb");
-            printf("Size of file is %d.\n", fsize);
             numbytes = fread(filecontents, sizeof(char), fsize, f);
             fclose(f);
             /* success status */
             resp->status = malloc(7 * sizeof(char));
             memset(resp->status, '\0', 7);
             strncpy(resp->status, "200 OK", 6);
+            memset(buffer, '\0', MAXREQSIZE);
+            sprintf(buffer, "%d", numbytes);
+            resp_addheader(resp, "Content-Length", buffer);
+            if (contenttype(filepath, buffer, MAXREQSIZE) == 0)
+              resp_addheader(resp, "Content-Type", buffer);
           }
           break;
         default:
@@ -100,6 +100,11 @@ void handleclient(int clientfd)
           resp->status = malloc(14);
           memset(resp->status, '\0', 14);
           strncpy(resp->status, "404 Not Found", 13);
+          filecontents = malloc(80);
+          memset(filecontents, '\0', 80);
+          strncpy(filecontents, "<html><head><title>404</title></head>"
+                  "<body><h1>404 Not Found</h1></body></html>", 79);
+          fsize = strlen(filecontents);
           break;
       }
     }
@@ -120,14 +125,10 @@ void handleclient(int clientfd)
     else {
       /* ...and send it */
       numbytes = write(clientfd, responsestr, numbytes);
-      printf("Sent %d bytes back in header.\n", numbytes);
-      printf("------\n%s\n------\n", responsestr);
     }
 
     /* send the body */
     numbytes = write(clientfd, filecontents, fsize);
-    printf("Sent %d bytes back in body.\n", numbytes);
-
   }
 
   /* Clean up */
@@ -146,5 +147,4 @@ void handleclient(int clientfd)
 
   /* done: disconnect the client */
   close(clientfd);
-  printf("Client disconnected.\n");
 }
