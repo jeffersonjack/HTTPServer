@@ -18,10 +18,91 @@
 
 I started by building a very simple single-threaded server that accepted
 messages from a client and printed them to the terminal. This code was based on
-Ian's example socket code. I then made this code multithreaded so that multiple
+Ian's example socket code. I then made this code multi-threaded so that multiple
 clients could connect in parallel. Once I was confident that this worked
-correctly, I started parsing the incomming messages as HTTP requests, and
-printing the fields of the request to the terminal. At this stage, all that was
-parsed was the HTTP method (GET), the URI, and the HTTP version.
+correctly, I started parsing the incoming messages as HTTP requests, storing
+the information in a {\it struct}, and printing the fields of the request to the
+terminal. At this stage, all that was parsed was the HTTP method (GET), the URI,
+and the HTTP version.
+
+I then wrote some code that sent a very simple HTTP response, along with a
+simple HTML message, back to the client. Once I had researched the format of
+such responses, this was a fairly straightforward task. At this stage, the
+response message consisted of a status line (version, status code) and a body.
+
+Next, I extended my program so that it could follow the URI specified in the
+request. If the file existed, I read the contents into a character buffer and
+sent this back to the client. This approach worked well for text files, but I
+discovered that this was a bad approach when I came to sending binary files
+(such as images and PDF documents). After some testing (trying to download the
+files using {\it wget}), I discovered that only the first few bytes of the file
+was being sent. The problem was that binary files contain null bytes, and when
+in a C string, this indicates the end of the string. Instead of generating a
+string for the whole HTTP response, I only used a string for the header. I sent
+the header separately, and then sent the file using {\it write()}. This method
+works for all types of file.
+
+Once I had code that successfully retrieved and sent a file, I dealt with
+directory listings. This was a straightforward task: for every entry in the
+directory, I add a line of HTML that includes a hyperlink to that file. A
+problem that I had with directory listings was that if a directory was requested
+without a trailing forward slash, clicking on a link on the directory listing
+would result in the file being requested from the parent directory. For example,
+if I requested the URL {\it http://localhost/news}, and I clicked on an entry
+called {\it index.html}, I would be taken to {\it http://localhost/index.html}.
+To fix this problem, if a directory was requested without a trailing slash, the
+HTTP response would redirect the user (using status 303) to the same directory
+but with a slash. e.g. a request for {\it http://locahost/news} redirects the
+user to {\it http://locahost/news/}. This feels like a bit of a hack, and could
+probably be avoided by changing the directory on the server, but it was all I
+could think of at the time and it works, so I left it.
+
+I then dealt with URIs that couldn't be followed. All that needs to be done here
+is for the HTTP status to be set to 404 and a simple {\it not found} message
+sent in the body.
+
+Now that I had an HTTP server working, I could then deal with header fields. I
+used a linked list to store an arbitrary number of header fields in the
+response. I could then send things such as content type/encoding, file length
+and date. The way I determined the MIME type of the file was to call the {\it
+  file} UNIX command from my program. Again, this feels like a bit of a hack but
+it is a simple solution that works. I experienced some memory problems when
+implementing the linked list, but that was due to my inexperience with C, and I
+learned a lot by using Valgrind to correct them.
+
+The final thing that I worked on was making the server run as a daemon. This
+meant detaching from the controlling tty, and revoking root permissions (if
+applicable). I used the 'double fork' method to do this, with success.\\
+
+
+Prior to starting this task, I had only ever written small C programs that
+performed one simple task, and because of this my C programming skills weren't
+as good as I would have liked. This made some simple tasks, such as creating a
+linked list for the header fields, much more difficult and time consuming that
+they should have been. Having spent a long time on this project, I feel that my
+C skills have definitely improved, and I now feel confident dealing with
+pointers and structures and other features of C that I previously didn't
+understand very well. Because of this, if I was to repeat the exercise, I would
+be able to get the basic structure of the program completed more quickly, and
+would therefore have much more time to add features that I sadly didn't have
+time to implement.
+
+I spent a lot of time refactoring my code to make it more understandable and
+maintainable. Next time I start a programming task, I will definitely spend more
+time thinking about the structure and organisation of my code, which will save
+me time later on in the project.
+
+Because of my lack of experience in writing C programs, I also had very little
+knowledge of how to debug them. I spent lots of time using {\it printf}
+statements to try and find the source of segmentation faults and other
+unexpected behaviour. I now know how to use tools such as GDB an Valgrind to
+locate and fix these problems more quickly.\\
+
+In summary, I enjoyed this task, and the challenges it brought. I feel much more
+confident programming in C now than I did a few weeks ago, and I also understand
+much more about what happens when I enter a URL into my web browser. I feel that
+my previous experience using Linux helped a great deal, as I already had lots of
+experience using the command line, and I knew about Makefiles and how to use
+manual pages.
 
 \end{document}

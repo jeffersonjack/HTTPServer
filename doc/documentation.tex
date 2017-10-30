@@ -17,29 +17,29 @@
 \maketitle
 
 \section{Compilation and Usage}
-The HTTP server is compiled using the \textbf{make} command. The daemon can then
-be started by typing \textbf{./httpd}.
+The HTTP server is compiled using the {\bf make} command. The daemon can then
+be started by typing {\bf ./httpd}.
 
 \subsection{Selecting a Port}
-If the daemon is run with no options (i.e. \textbf{./httpd}), then it will
+If the daemon is run with no options (i.e. {\bf ./httpd}), then it will
 attempt to bind to port number 80, and therefore superuser permissions are
-required. A port number can be specified on the command line: \textbf{./httpd -p
+required. A port number can be specified on the command line: {\bf ./httpd -p
   8080}. The port number should be between 1 and 65535, but note that only root
 can bind to ports lower than 1024.
 
 \subsection{Specifying a Directory}
 If the server is started with root permissions, the server will serve files from
-the \textbf{/var/www/} directory. Otherwise, the current directory shall be
-used. This default behaviour can be changed by using the \textbf{-d} flag,
-e.g. \textbf{./httpd -d /path/to/dir/}, but note that the daemon must have
+the {\bf /var/www/} directory. Otherwise, the current directory shall be
+used. This default behaviour can be changed by using the {\bf -d} flag,
+e.g. {\bf ./httpd -d /path/to/dir/}, but note that the daemon must have
 sufficient permissions to access the files in that directory (see below).
 
 \subsection{Users and Permissions}
 For security reasons, if the daemon was run as the root user, it will bind to
-the port and then attempt to drop its superuser permissions. The users
-\textbf{httpd}, \textbf{http}, and \textbf{daemon} are tried (in that order). If
-none of these users are found, or if switching to them fails for any other
-reason, the HTTP server will fail to start.
+the port and then attempt to drop its superuser permissions. The users {\bf
+  httpd}, {\bf http}, and {\bf daemon} are tried (in that order). If none of
+these users are found, or if switching to them fails for any other reason, the
+HTTP server will fail to start.
 
 If the daemon is not run as root, it shall continue to run as that particular
 user.
@@ -47,8 +47,8 @@ user.
 If a custom directory is specified on the command line, the daemon will attempt
 to change into that directory and proceed to serve files from there. The
 directory must be accessible by the user under whom the daemon is running. For
-example, if the daemon is started as root, and the \textbf{httpd} user exists,
-that user must have read permissions for files in the \textbf{/var/www/}
+example, if the daemon is started as root, and the {\bf httpd} user exists,
+that user must have read permissions for files in the {\bf /var/www/}
 directory.
 
 \subsection{Success}
@@ -59,35 +59,35 @@ the terminal that was used to run the program can be closed safely.
 \section{Code Structure}
 
 \subsection{Setting Up}
-The \textbf{main} function (in \textbf{main.c}) starts by checking that the
-program was started correctly. If a port was specified (with the \textbf{-p}
+The {\bf main} function (in {\bf main.c}) starts by checking that the
+program was started correctly. If a port was specified (with the {\bf -p}
 flag), type and range checks are performed. If the program was not started
 correctly, for example if an invalid port was specified, or if an unexpected
 option is encountered, the program prints a 'usage' message, and exits with an
 error code. Once it is known that the program was started correctly, the process
-is \textbf{fork}ed, and the child process calls \textbf{setsid()}. This creates
+is {\bf fork}ed, and the child process calls {\bf setsid()}. This creates
 a new session group and sets the calling process as the group leader, thereby
-detatching itself from the controlling tty. The \textbf{getlisteningsocket()}
+detaching itself from the controlling tty. The {\bf getlisteningsocket()}
 function is now called, to bind to, and listen on, the port. If that runs
 successfully, a user ID check is performed and, if the process is running as
 root, the process drops these permissions and runs as a different user (as
-described above). The process then \textbf{fork}s again, and the parent exits.
+described above). The process then {\bf fork}s again, and the parent exits.
 
 \subsection{Accepting Connections}
 Now that the process is running as a daemon, and we have a listening socket, it
 can start to wait for connections. This is done in the
-\textbf{acceptconnections()} function. This function runs in an endless loop,
-each time calling \textbf{accept()}, which, when a new connection is
+{\bf acceptconnections()} function. This function runs in an endless loop,
+each time calling {\bf accept()}, which, when a new connection is
 established, returns the file descriptor of a client socket. A new thread is
-then created (and detatched - to avoid memory leaks) which handles the client's
-request. The \textbf{acceptconnections()} function then continues to wait for
+then created (and detached - to avoid memory leaks) which handles the client's
+request. The {\bf acceptconnections()} function then continues to wait for
 new connections.
 
 \subsection{Handling Connections}
 When a connection has been established, the thread waits for, and reads, the
 message from that client. An attempt is made to parse this message as an HTTP
 request. If successful, an HTTP response message is generated. The URI from the
-request is followed and one of three outcomes is arrived at:
+request is followed, resulting in one of the 3 following outcomes:
 
 \begin{enumerate}
 \item The URI points to a directory.
@@ -104,23 +104,18 @@ If the URI identifies a file, the file is read and some HTTP response headers
 file. These headers are then sent back to the client, followed by the file
 itself.
 
-If the URI can't be followed, the HTTP resonse code is set to 404, indicating
+If the URI can't be followed, the HTTP response code is set to 404, indicating
 that the file cannot be found. A simple HTML message is then sent back to the
 user in the body of the HTTP response.
 
 Once the response headers and the response body have been sent back to the
 client, the connection is closed and all memory that was allocated within the
-thread is claned up. The thread then exits.
+thread is clan-ed up. The thread then exits.
 
 \section{Limitations}
 The HTTP request parser only recognises a message as a valid HTTP request if the
-\textbf{GET} method is used. With more time, this could have been extended to
+{\bf GET} method is used. With more time, this could have been extended to
 include some of the other HTTP methods. However, as GET is the most useful, this
-isn't a major issue.
-
-
-
-What the code can't do.
-Only GET. No encryption, compression.
+ins't a major issue.
 
 \end{document}
