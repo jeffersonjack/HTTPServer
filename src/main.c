@@ -63,9 +63,6 @@ int main(int argc, char **argv)
     return 1;
   }
 
-  /* we are a daemon, so don't want to be printing errors */
-  fclose(stderr);
-
   /* fork #1 */
   if ((pid = fork()) < 0) {
     perror("fork");
@@ -118,6 +115,9 @@ int main(int argc, char **argv)
       perror("fork");
       return 1;
     }
+
+    /* we are a daemon, so don't want to be printing errors */
+    fclose(stderr);
 
     if (pid == 0) {
       /* in child process */
