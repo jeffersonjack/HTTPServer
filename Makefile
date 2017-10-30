@@ -1,4 +1,9 @@
-CC = clang
+CLANG=$(shell which clang)
+ifeq ($(CLANG), /usr/bin/clang)
+	CC=clang
+else
+	CC=gcc
+endif
 CFLAGS = -g -Wall -Werror -std=gnu99
 BIN = httpd
 LIBS = -lpthread
