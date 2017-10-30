@@ -6,7 +6,6 @@ SRCDIR = src
 OBJDIR = obj
 SRCS = src/main.c \
 	   src/getlisteningsocket.c \
-	   src/iptostr.c \
 	   src/handleclient.c \
 	   src/acceptconnections.c \
 	   src/parserequest.c \

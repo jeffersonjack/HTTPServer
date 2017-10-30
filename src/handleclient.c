@@ -7,7 +7,6 @@
 
 #include "file.h"
 #include "http.h"
-#include "util.h"
 
 void handleclient(int clientfd)
 {
