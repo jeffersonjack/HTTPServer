@@ -1,0 +1,27 @@
+\documentclass[a4paper]{article}
+
+\usepackage{fullpage}
+\usepackage{listings}
+\pdfinfo{
+  /Author (1561945)
+  /Title  (HTTP Server Assignment - Diary)
+}
+
+\title{HTTP Server Assignment \\
+  \large Diary}
+\date{}
+\author{}
+
+\begin{document}
+
+\maketitle
+
+I started by building a very simple single-threaded server that accepted
+messages from a client and printed them to the terminal. This code was based on
+Ian's example socket code. I then made this code multithreaded so that multiple
+clients could connect in parallel. Once I was confident that this worked
+correctly, I started parsing the incomming messages as HTTP requests, and
+printing the fields of the request to the terminal. At this stage, all that was
+parsed was the HTTP method (GET), the URI, and the HTTP version.
+
+\end{document}
