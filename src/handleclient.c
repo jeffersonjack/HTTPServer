@@ -38,8 +38,6 @@ void handleclient(int clientfd)
     /* try to parse an HTTP request */
     if (!parserequest(req, buffer, numbytes))
       fprintf(stderr, "Error: received bad request\n");
-    else
-      printrequest(req);
 
     /* start making response header */
     strncpy(resp->version, "HTTP/1.1", VERSIONLEN-1);
@@ -81,8 +79,6 @@ void handleclient(int clientfd)
     seconds = time(0);    /* time now */
     httptime(&seconds, timestr);
     resp_addheader(resp, "Date", timestr);
-
-    printresponse(resp);
 
     /* generate response header string... */
     if ((numbytes = resptostr(resp, &responsestr)) < 0)

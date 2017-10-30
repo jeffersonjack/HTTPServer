@@ -51,7 +51,6 @@ int main(int argc, char **argv)
     }
   }
 
-
   /* if we don't have a port number by now, the usage was incorrect */
   if (portno < 1) {
     fprintf(stderr, "Usage: %s [-p port] [-d directory]\n", *argv);
@@ -63,6 +62,9 @@ int main(int argc, char **argv)
     fprintf(stderr, "Error: invalid port number\n");
     return 1;
   }
+
+  /* we are a daemon, so don't want to be printing errors */
+  fclose(stderr);
 
   /* fork #1 */
   if ((pid = fork()) < 0) {
