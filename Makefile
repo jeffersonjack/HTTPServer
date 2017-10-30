@@ -1,6 +1,6 @@
 CC = clang
 CFLAGS = -g -Wall -Werror -std=gnu99
-BIN = server
+BIN = httpd
 LIBS = -lpthread
 SRCDIR = src
 OBJDIR = obj
@@ -21,7 +21,7 @@ SRCS = src/main.c \
 	   src/httptime.c \
 	   src/makeresponse_dir.c \
 	   src/makeresponse_file.c \
-       src/makeresponse_404.c
+	   src/makeresponse_404.c
 OBJS = $(SRCS:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
 
 all: $(BIN)

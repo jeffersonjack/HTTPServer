@@ -1,13 +1,17 @@
 # Executable
-server
+httpd
 
 # Object files
 *.o
 obj/
 
 # Directories
+doc/*.pdf
+doc/*.log
+doc/*.aux
 test/
 www/
 
 # Other
 rfc2616.txt
+*.log
